@@ -1,1 +1,1 @@
-node serve
+微信公众平台接口测试账号申请：https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login

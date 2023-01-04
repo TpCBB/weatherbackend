@@ -7,9 +7,8 @@ const dayjs = require("dayjs")
 // 导入 dayjs 插件
 const weekday = require('dayjs/plugin/weekday')
 const isSameOrAfter = require("dayjs/plugin/isSameOrAfter")
-// 农历日期
-const lunarFun = require('lunar-fun');
 
+const lunarFun = require('lunar-fun');
 // 使用 dayjs 插件
 dayjs.extend(weekday)
 dayjs.extend(isSameOrAfter);
@@ -50,7 +49,7 @@ async function getToken() {
         appid: config.app_id,
         secret: config.app_secret,
     };
-    let res = await axiosGet('/weixin/cgi-bin/token', params);
+    let res = await axiosGet('https://api.weixin.qq.com/cgi-bin/token', params);
     return res.data.access_token;
 }
 // 获取天气情况
@@ -61,10 +60,9 @@ async function get_weather() {
         sign: "h5",
         city: config.city
     }
-    let res = await axiosGet(`/weather/csp/api/v2.1/weather`, params)
+    let res = await axiosGet(`http://autodev.openspeech.cn/csp/api/v2.1/weather`, params)
     return res.data.data.list[0]
 }
-get_weather()
 
 // 获取当前时间：格式 2022年8月25日 星期五
 function getCurrentDate() {
@@ -102,21 +100,26 @@ function getCurrentDate() {
 function brthDate(brth, islunar) {
     const nowDate = dayjs().format('YYYY-MM-DD'); // 当前日期（格式：年-月-日）
     let birthDays = ""
-
+    // 获取今年生日
     // 判断一个日期是否大于等于另一个日期：判断生日 是否大于等于 当前日期（返回布尔值）
+    let [y, m, d] = brth.split('-')
+    if (islunar) {
+        console.log("农历生日为", brth)
+        brth = lunarFun.lunalToGregorian(dayjs().year(), m, d, isRun()).slice(0, 3).join('-')
+        console.log("今年的生日的公历日期", brth)
+    } else {
+        // 今年的生日
+        brth = `${dayjs().year()}-${m}-${d}`
+    }
     if (dayjs(brth).isSameOrAfter(nowDate)) {
         // 生日还没过
         birthDays = dayjs(brth).diff(dayjs(), 'day') // 获取两个日期相差的天数
-        // if (birthDays === 0) console.log("今天是宝贝的生日，生日快乐");
     } else {
         // 生日已过,计算距离下一次生日还有多少天
         let nextBirthYears = dayjs().year() + 1 // 下一次生日年份等于当前年份+1
 
         let nextBirth = nextBirthYears + "-" + dayjs(brth).format('MM-DD') // 下一次生日年月日
-        console.log(nextBirth);
-
         if (islunar) {
-            let [y, m, d] = brth.split('-')
 
             nextBirth = lunarFun.lunalToGregorian(nextBirthYears, m, d, isRun(nextBirthYears)).slice(0, 3).join('-')
             console.log(nextBirth);
@@ -138,12 +141,11 @@ function alreadyBorn(birth, islunar) {
 
 // 土味情话
 async function sweetNothings() {
-    let res = await axiosGet("/sweetword/words/api.php?return=json")
+    let res = await axiosGet("https://api.1314.cool/words/api.php?return=json")
     let str = ""
     config.loveStr ? str = config.loveStr : str = res.data.word
     return str.replace(/<br>/g, "\n")
 }
-sweetNothings()
 
 // 随机颜色
 function randomColor() {
@@ -156,7 +158,7 @@ function food() {
 
 async function templateMessageSend() {
     const token = await getToken();
-    const url = '/weixin/cgi-bin/message/template/send?access_token=' + token;
+    const url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' + token;
     // 天气信息
     let weatherInfo = await get_weather()
     // 计算在一起的天数
@@ -167,7 +169,7 @@ async function templateMessageSend() {
     const params = {
         touser: config.user,
         template_id: config.template_id,
-        url: '',
+        url: 'http://weixin.qq.com/download',
         topcolor: '#FF0000',
         data: {
             // 当前日期
@@ -271,7 +273,6 @@ async function templateMessageSend() {
             }
         },
     };
-    
     let res = await axiosPost(url, params);
     switch (res.data.errcode) {
         case 40001:
@@ -295,7 +296,7 @@ async function templateMessageSend() {
 const schedule = require('node-schedule');
 const scheduleCronstyle = () => {
     // 每天的早8点触发（定时器规则：秒/分/时/日/月/年，*号可理解为"每"的意思，如 0 0 8 * 这个*表示每日）
-    schedule.scheduleJob('0 0 8 * * *', () => {
+    schedule.scheduleJob('50 31 15 * * *', () => {
         templateMessageSend();
     });
 }
