@@ -296,33 +296,21 @@ async function templateMessageSend() {
 const schedule = require('node-schedule');
 const scheduleCronstyle = () => {
     // 每天的早8点触发（定时器规则：秒/分/时/日/月/年，*号可理解为"每"的意思，如 0 0 8 * 这个*表示每日）
-    schedule.scheduleJob('10 56 15 * * *', () => {
+    schedule.scheduleJob('0 0 8 * * *', () => {
         templateMessageSend();
     });
 }
 scheduleCronstyle();
 
-let timer = null
-function debounce(cb) {
-    if (timer) {
-        clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-        cb && cb();
-        timer = undefined;
-    }, 1000);
-}
-const Koa = require('koa');
-const app = new Koa();
 
-app.use(async ctx => {
-    ctx.body = '定时任务启动';
-    // debounce(() => {
-    //     console.log('debounce')
-    //     scheduleCronstyle()
-    // })
-});
+// const Koa = require('koa');
+// const app = new Koa();
 
-app.listen(3008, () => {
-    console.log('项目启动')
-});
+// app.use(async ctx => {
+//     ctx.body = 'Hello Vercel, Hi Koa2';
+// });
+
+
+// app.listen(3008, () => {
+//     console.log('3008项目启动')
+// });

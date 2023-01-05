@@ -3,7 +3,7 @@ const config = {
     app_id: "wxa256712fcfa3d42f", // 公众号appId
     app_secret: "06e57bd7da597723476cfb784a7e2fd4", // 公众号appSecret
     // user: "ou5Fg564cSZnY8A-UwRhre6ncg-c", // 接收公众号消息的微信号
-    user: "ou5Fg5xuxPg3p9DSNY3SQvGUSV4o", // 接收公众号消息的微信号
+    // user: "ou5Fg5xuxPg3p9DSNY3SQvGUSV4o", // 接收公众号消息的微信号
     template_id: "YuhreSvNhZNk9i6ryAnVlTxdasmwenLjld3sTQo5yDc", // 模板 id
     // 信息配置
     city: "中山", // 所在城市
